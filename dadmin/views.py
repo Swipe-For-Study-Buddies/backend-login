@@ -9,6 +9,9 @@ from rest_framework import serializers
 from rest_framework_simplejwt.views import TokenObtainPairView 
 from .serializer import DmallTokenObtainPairSerializer 
 
+from utils.hash import get_hash
+from .models import Users
+
 
 class DmallTokenObtainPairView(TokenObtainPairView): # 登錄成功返回token 
     serializer_class = DmallTokenObtainPairSerializer
@@ -26,6 +29,19 @@ class CaptchaAPIView(APIView):
         except: json_data = None 
         return HttpResponse(json_data, content_type="application/json")
 
+class RegisterAPIView(APIView):
+    def post(self, request):  
+        json_data = json.loads(request.body)    
+        _email = json_data["email"]
+        _password = json_data["password"]
+        print(_email, _password)
+        hash_password, salt= get_hash(_password)
+        if Users.objects.filter(email = _email).exists():
+            fail_json = json.dumps({"message": "AccountAlreadyExist"})
+            return HttpResponse(fail_json, content_type="application/json", status= 400)  
+        Users.objects.create(email=_email, password=hash_password, salt=salt)            
+        success_json = json.dumps({"message": "OK"})
+        return HttpResponse(success_json, content_type="application/json")
 
 
 
