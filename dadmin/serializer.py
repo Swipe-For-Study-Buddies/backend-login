@@ -53,4 +53,6 @@ class DmallTokenObtainPairSerializer(TokenObtainPairSerializer):
                 raise serializers.ValidationError('帳號或密碼不正確') # 登錄成功返回token信息 
             token = get_tokens_for_user(self.user) 
             return token
+        
+
 
